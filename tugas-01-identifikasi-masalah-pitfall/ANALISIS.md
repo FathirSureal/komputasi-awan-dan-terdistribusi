@@ -15,7 +15,7 @@
 
 **Dampak ke FoodGo:** Modul pesanan memanggil modul pembayaran secara sinkron dan menunggu tanpa batas waktu. Saat trafik naik (jam makan siang/promo), modul pembayaran melambat, bukan mati, tetapi karena tidak ada timeout, setiap request yang kena antre di sana tetap menahan satu slot thread/koneksi di modul pesanan tanpa batas. Jika ini terjadi berkali-kali secara bersamaan, seluruh pool thread/koneksi modul pesanan habis dipakai untuk menunggu, akibatnya server menjadi tidak bisa menerima request baru, dan berujung crash total atau perlu restart manual, persis gejala yang dilaporkan tim engineering FoodGo.
 
-**Solusi desain awal:** Set timeout yang jelas di semua pemanggilan antar service, ditambah circuit breaker: jika modul pembayaran sudah terlihat melambat/gagal berkali-kali secara beruntun, circuit breaker akan "membuka" (menghentikan pengiriman request baru sementara, fail fast) daripada terus menunggu dan ikut menghabiskan resource modul pesanan. Setelah jeda waktu tertentu, circuit breaker mencoba lagi (half-open); jika modul pembayaran sudah pulih, kirim request normal kembali; jika masih bermasalah, tutup kembali akses sementara.
+**Solusi desain awal:** Set timeout yang jelas di semua pemanggilan antar service, ditambah circuit breaker: jika modul pembayaran sudah terlihat melambat/gagal berkali-kali secara beruntun, circuit breaker akan "membuka" (menghentikan pengiriman request baru sementara, fail fast) daripada terus menunggu dan ikut menghabiskan resource modul pesanan. Setelah jeda waktu tertentu, circuit breaker mencoba lagi (half-open), jika modul pembayaran sudah pulih, kirim request normal kembali, namun jika masih bermasalah, tutup kembali akses sementara.
 
 **Trade-off:** Timeout yang terlalu pendek dapat membuat request yang sebenarnya masih valid (hanya agak lambat, belum tentu gagal) dianggap gagal, sehingga user experience terlihat lebih sering error padahal transaksi sebenarnya bisa berhasil jika diberi waktu sedikit lebih lama. Sebaliknya, timeout yang terlalu panjang tidak banyak membantu karena resource tetap tertahan dalam waktu lama. Nilai timeout perlu disesuaikan (tuning) berdasarkan data respons aktual modul pembayaran, bukan ditentukan secara sembarang.
 
@@ -29,13 +29,19 @@
 
 Dalam kondisi nyata, kegagalan jaringan adalah sesuatu yang pasti akan terjadi pada skala dan kondisi tertentu. Bentuk kegagalan tersebut dapat berupa terputusnya koneksi, hilangnya sebagian paket data (packet loss), ketidaktersediaan server tujuan (server down), maupun keterlambatan respons akibat kepadatan lalu lintas data. Menganggap komunikasi antar-service akan selalu berhasil sama saja dengan mengasumsikan bahwa kendaraan tidak akan pernah mengalami gangguan teknis selama perjalanan, yakni sebuah asumsi yang tidak realistis dan tidak dapat dijadikan dasar perancangan sistem yang andal.
 
-Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagalan dalam kode, seperti tidak adanya fitur retry saat komunikasi antar-service gagal. Membuat sistem menjadi rapuh (fragile) terhadap gangguan jaringan sekecil apa pun, dan kegagalan pada satu komponen berpotensi menjalar serta memengaruhi keseluruhan sistem.
+Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagalan dalam kode, seperti tidak adanya fitur retry dan fallback saat komunikasi antar-service gagal. Membuat sistem menjadi rapuh (fragile) terhadap gangguan jaringan sekecil apa pun, dan kegagalan pada satu komponen berpotensi menjalar serta memengaruhi keseluruhan sistem.
 
-**Dampak ke FoodGo:** Salah satu dampak ke sistem FoodGo adalah, request gagal total meski gangguannya hanya berlangsung dalam waktu yang sangat singkat. Karena tidak ada fitur retry, transaksi user dianggap gagal meskipun sebenarnya bisa berhasil jika dicoba ulang sesaat kemudian. User harus mengulang proses checkout dari awal, menciptakan pengalaman buruk dan memiliki potensi kehilangan pelanggan.
+**Dampak ke FoodGo:** Salah satu dampak ke sistem FoodGo adalah, request gagal total meski gangguannya hanya berlangsung dalam waktu yang sangat singkat. Karena tidak ada fitur retry dan fallback, transaksi user dianggap gagal meskipun sebenarnya bisa berhasil jika dicoba ulang sesaat kemudian. User harus mengulang proses checkout dari awal, menciptakan pengalaman penggunaan aplikasi yang buruk dan memiliki potensi kehilangan pelanggan.
 
-**Solusi desain awal:** Penambahan fitur retry pada sistem FoodGo.
+**Solusi desain awal:** Penambahan fitur retry dan fallback pada sistem FoodGo.
 
-**Trade-off:** - Fitur retry. Sisi postif : menyelesaikan masalah kegagalan total ketika terjadi network error dan memberikan fitur "quality of life" untuk user, mengurangi pengalaman buruk ketika menggunakan sistem bagi user. Sisi negatifnya : bila terjadi banyak kegagalan secara bersamaan dan retry terus-menerus dapat membebani server dengan request berulang.
+**Trade-off:** 
+- **Fitur retry**. 
+  - **Sisi postif:** menyelesaikan masalah kegagalan total ketika terjadi network error dan memberikan fitur "quality of life" untuk user, mengurangi pengalaman buruk ketika menggunakan sistem bagi user.
+  - **Sisi negatifnya:** bila terjadi banyak kegagalan secara bersamaan dan retry terus-menerus dapat membebani server dengan request berulang.
+- **Fitur fallback.**
+  - **Sisi positif:** menjaga sistem tetap berjalan  ketika komponen utama gagal, misalnya dengan menyajikan data dari cache, respons default, atau layanan cadangan. User tetap bisa memakai fitur inti dan tidak melihat error total. Fallback juga mencegah kegagalan satu komponen merembet ke komponen lain (cascading failure).
+  - **Sisi negatif:** data yang ditampilkan bisa kedaluwarsa (stale) atau tidak konsisten dengan kondisi sebenarnya, dan fitur yang tersedia terbatas. Fallback juga menambah kompleksitas dan biaya (infrastruktur cadangan dan jalur kode tambahan). Jalur fallback yang jarang dipakai dan jarang diuji bisa ikut gagal saat dibutuhkan, dan kegagalan komponen utama bisa tersamarkan jika tidak ada monitoring yang memadai.
 
 --- 
 ## Pitfall 3: Single point of failure - Desain arsitektur monolitik — ditulis oleh Muhammad Kelvin Firmansyah & Fathir Al Farih 
