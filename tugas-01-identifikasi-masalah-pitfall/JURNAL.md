@@ -25,6 +25,12 @@
 
   - Pitfall #3 "Single point of failure - Desain arsitektur monolitik" :
      - Sama dengan pitfall #1, analisis yang dilakukan sudah benar untuk penjelasan identifikasi masalah utama, yaitu seluruh modul bergantung pada satu server dan satu proses monolitik, serta penjelasan bahwa masalahnya bukan hanya server tunggal, tetapi tidak adanya isolasi antar modul untuk menghindari permasalahan SPOF (Single point of failure).
+
+- Muhammad Kelvin Firmansyah mengomentari analisis Fathir Al Farih: 
+  - Pitfall #2 "Network is always reliable" :
+    - Saya merasa sudah cukup bagus untuk konsepsi permasalahan pitfall, analisis sudah menghubungkan asumsi network is always reliable dengan kondisi nyata pada FoodGo, dan analogi kendaraan yang tidak pernah mengalami gangguan teknis selama perjalanan cukup membantu memahami kenapa asumsi ini tidak realistis. Bagian dampak juga jelas karena menjelaskan bagaimana kegagalan sesaat langsung dianggap gagal total tanpa retry. Trade-off retry dan fallback juga dijelaskan dengan baik karena dipecah per fitur, dengan sisi positif dan negatif masing-masing dijabarkan secara jelas sehingga konsekuensinya mudah dipahami.
+
+    Namun, saya merasa ada yang kurang tepat pada bagian "Kenapa ini keliru". Di situ disebutkan bentuk kegagalan jaringan mencakup "keterlambatan respons akibat kepadatan lalu lintas data" sebagai bagian dari pitfall network reliability. Padahal keterlambatan respons (latency yang melonjak saat beban tinggi) itu lebih tepat masuk ke pitfall "Latency is Zero" yang saya bahas, sedangkan network reliability harusnya fokus ke kegagalan pengiriman itu sendiri (koneksi putus, packet loss, server tidak terjangkau), bukan soal cepat-lambatnya respons.
      
        Namun, dalam analisis terdapat sedikit kekeliruan pada istilah SPOF (Single Point of Failure). SPOF lebih tepat merujuk pada komponen yang ketika gagal dapat menyebabkan keseluruhan sistem atau layanan penting ikut gagal. Sementara penjelasan tentang lonjakan beban salah satu modul yang menghabiskan CPU/memori modul fitur lain lebih tepat disebut sebagai masalah resource contention atau lack of isolation
 
