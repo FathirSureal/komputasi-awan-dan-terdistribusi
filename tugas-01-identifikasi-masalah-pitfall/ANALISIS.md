@@ -21,12 +21,23 @@
 
 ---
 
-## Pitfall 2: [nama pitfall] — ditulis oleh [nama]
+## Pitfall 2: "Network is always reliable" — ditulis oleh Fathir Al Farih
+ 
+**Bukti di skenario:** "Tim menemukan bahwa kode mereka menulis asumsi seperti # network is always reliable, no need for retry...".
 
-(ulangi struktur di atas)
+**Kenapa ini keliru:** Asumsi "the network is always reliable" merupakan salah satu pitfall dalam pengembangan sistem terdistribusi. Kesalahan ini terjadi ketika seorang programmer merancang komunikasi antar-service dengan asumsi bahwa lingkungan jaringan bersifat stabil dan terkendali sepenuhnya, tanpa mempertimbangkan karakteristik jaringan yang sesungguhnya (in real life condition).
 
----
+Dalam kondisi nyata, kegagalan jaringan adalah sesuatu yang pasti akan terjadi pada skala dan kondisi tertentu. Bentuk kegagalan tersebut dapat berupa terputusnya koneksi, hilangnya sebagian paket data (packet loss), ketidaktersediaan server tujuan (server down), maupun keterlambatan respons akibat kepadatan lalu lintas data. Menganggap komunikasi antar-service akan selalu berhasil sama saja dengan mengasumsikan bahwa kendaraan tidak akan pernah mengalami gangguan teknis selama perjalanan, yakni sebuah asumsi yang tidak realistis dan tidak dapat dijadikan dasar perancangan sistem yang andal.
 
+Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagalan dalam kode, seperti tidak adanya fitur retry saat komunikasi antar-service gagal. Membuat sistem menjadi rapuh (fragile) terhadap gangguan jaringan sekecil apa pun, dan kegagalan pada satu komponen berpotensi menjalar serta memengaruhi keseluruhan sistem.
+
+**Dampak ke FoodGo:** Salah satu dampak ke sistem FoodGo adalah, request gagal total meski gangguannya hanya berlangsung dalam waktu yang sangat singkat. Karena tidak ada fitur retry, transaksi user dianggap gagal meskipun sebenarnya bisa berhasil jika dicoba ulang sesaat kemudian. User harus mengulang proses checkout dari awal, menciptakan pengalaman buruk dan memiliki potensi kehilangan pelanggan.
+
+**Solusi desain awal:** Penambahan fitur retry pada sistem FoodGo.
+
+**Trade-off:** - Fitur retry. Sisi postif : menyelesaikan masalah kegagalan total ketika terjadi network error dan memberikan fitur "quality of life" untuk user, mengurangi pengalaman buruk ketika menggunakan sistem bagi user. Sisi negatifnya : bila terjadi banyak kegagalan secara bersamaan dan retry terus-menerus dapat membebani server dengan request berulang.
+
+--- 
 ## Pitfall 3: [nama pitfall] — ditulis oleh [nama]
 
 (ulangi struktur di atas)
