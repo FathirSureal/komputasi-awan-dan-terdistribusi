@@ -5,11 +5,11 @@
 ## 18 September 2026 12:25 - 16:45 [Offline meet]
 - Peserta: Fathir Al Farih & Muhammad Kelvin Firmansyah
 - Poin diskusi: First meet serta analisis skenario dan soal Tugas 1 : mengkaji problem yang disajikan dalam persoalan skenario FoodGo, menggunakan AI dan research sederhana di web untuk mencari materi dan konteks untuk pengerjaan soal Tugas.
-- Perbedaan pendapat (jika ada): Perbedaan beberapa pitfall yang ingin di singgung dalam tugas.
+- Perbedaan pendapat (jika ada): Perbedaan beberapa pitfall yang ingin di singgung dalam tugas, lalu menulis hasil analisis dalam VScode cloning repository.
 
 ## 19 September 2026 12:10 - [Online meet via Discord]
 - Peserta: Fathir Al Farih & Muhammad Kelvin Firmansyah
-- Poin diskusi: Second meet serta analisis skenario dan soal Tugas 1 : Push pengerjaan tugas yang sudah dikerjakan ke repository github dan revisi analisis pitfall nomor #3 yang dirasa kurang tepat, melakukan review silang pekerjaan masing masing, dan pembuatan kesimpulan untuk tugas 1
+- Poin diskusi: Second meet serta analisis skenario dan soal Tugas 1 : Push pengerjaan tugas yang sudah dikerjakan dari VScode ke repository github dan revisi analisis pitfall nomor #3 yang dirasa kurang tepat, melakukan review silang pekerjaan masing masing, dan pembuatan kesimpulan untuk tugas 1
 - Perbedaan pendapat (jika ada): -
 
 ## Review Silang
