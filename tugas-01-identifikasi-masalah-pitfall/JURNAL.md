@@ -17,7 +17,16 @@
 - Perbedaan pendapat (jika ada): -
 
 ## Review Silang
-- [Nama] mengomentari analisis [Nama lain]: ...
+- Fathir Al Farih mengomentari analisis Muhammad Kelvin Firmansyah:
+  -  Pitfall #1 "Latency Is Zero" : 
+     - Saya merasa sudah cukup benar untuk konsepsi permasalahan pitfall, analisis sudah menghubungkan asumsi latency is zero dengan kondisi nyata pada FoodGo. Bagian dampak juga cukup jelas karena menjelaskan bagaimana request yang menunggu tanpa batas dapat menghabiskan thread atau bandwidth hingga menyebabkan server tidak mampu menerima request baru. Solusi berupa timeout dan circuit breaker juga relevan berdasarkan materi untuk mencegah kegagalan merambat ke modul fungsi lainya. 
+
+       Namun, saya merasa ada yang kurang tepat pada bagian “Kenapa ini keliru”. Latency is zero tidak hanya berarti developer tidak menyediakan timeout, tetapi merupakan asumsi bahwa komunikasi antar service membutuhkan waktu "0 ms" atau selalu berlangsung sangat cepat dan konsisten.
+
+  - Pitfall #3 "Single point of failure - Desain arsitektur monolitik" :
+     - Sama dengan pitfall #1, analisis yang dilakukan sudah benar untuk penjelasan identifikasi masalah utama, yaitu seluruh modul bergantung pada satu server dan satu proses monolitik, serta penjelasan bahwa masalahnya bukan hanya server tunggal, tetapi tidak adanya isolasi antar modul untuk menghindari permasalahan SPOF (Single point of failure).
+     
+       Namun, dalam analisis terdapat sedikit kekeliruan pada istilah SPOF (Single Point of Failure). SPOF lebih tepat merujuk pada komponen yang ketika gagal dapat menyebabkan keseluruhan sistem atau layanan penting ikut gagal. Sementara penjelasan tentang lonjakan beban salah satu modul yang menghabiskan CPU/memori modul fitur lain lebih tepat disebut sebagai masalah resource contention atau lack of isolation
 
 ## Log Penggunaan AI (Level 2)
 
