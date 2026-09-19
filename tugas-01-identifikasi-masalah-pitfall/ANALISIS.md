@@ -17,7 +17,7 @@
 
 **Solusi desain awal:** Set timeout yang jelas di semua pemanggilan antar service, ditambah circuit breaker: jika modul pembayaran sudah terlihat melambat/gagal berkali-kali secara beruntun, circuit breaker akan "membuka" (menghentikan pengiriman request baru sementara, fail fast) daripada terus menunggu dan ikut menghabiskan resource modul pesanan. Setelah jeda waktu tertentu, circuit breaker mencoba lagi (half-open); jika modul pembayaran sudah pulih, kirim request normal kembali; jika masih bermasalah, tutup kembali akses sementara.
 
-**Trade-off:** Timeout yang terlalu pendek bisa membuat request yang sebenarnya masih valid (hanya agak lambat, belum tentu gagal) malah dianggap gagal, user experience terlihat lebih sering error padahal transaksinya sebenarnya bisa sukses jika diberi waktu sedikit lebih lama. Sebaliknya, timeout yang terlalu panjang tidak banyak membantu karena resource tetap tertahan lama. Nilai timeout perlu disesuaikan (tuning) berdasarkan data respons aktual modul pembayaran, bukan angka sembarang.
+**Trade-off:** Timeout yang terlalu pendek dapat membuat request yang sebenarnya masih valid (hanya agak lambat, belum tentu gagal) dianggap gagal, sehingga user experience terlihat lebih sering error padahal transaksi sebenarnya bisa berhasil jika diberi waktu sedikit lebih lama. Sebaliknya, timeout yang terlalu panjang tidak banyak membantu karena resource tetap tertahan dalam waktu lama. Nilai timeout perlu disesuaikan (tuning) berdasarkan data respons aktual modul pembayaran, bukan ditentukan secara sembarang.
 
 ---
 
@@ -38,9 +38,17 @@ Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagal
 **Trade-off:** - Fitur retry. Sisi postif : menyelesaikan masalah kegagalan total ketika terjadi network error dan memberikan fitur "quality of life" untuk user, mengurangi pengalaman buruk ketika menggunakan sistem bagi user. Sisi negatifnya : bila terjadi banyak kegagalan secara bersamaan dan retry terus-menerus dapat membebani server dengan request berulang.
 
 --- 
-## Pitfall 3: [nama pitfall] — ditulis oleh [nama]
+## Pitfall 3: Single point of failure - Desain arsitektur monolitik — ditulis oleh Muhammad Kelvin Firmansyah & Fathir Al Farih 
 
-(ulangi struktur di atas)
+**Bukti di skenario:** "satu server yang menangani semua modul (pesanan, pembayaran, notifikasi kurir) kewalahan karena semuanya berjalan di satu proses monolitik yang sama...".
+
+**Kenapa ini keliru:** : Menempatkan seluruh fungsi penting pada satu server atau satu proses membuat modul-modul yang memiliki karakteristik beban berbeda (pesanan, pembayaran, notifikasi kurir) berbagi resource (CPU, memori) yang sama tanpa batas pemisah. Akibatnya, lonjakan beban pada satu modul dapat menghabiskan resource yang seharusnya tersedia untuk modul lain, meskipun modul tersebut tidak bermasalah. Masalahnya bukan sekadar "satu server", tapi tidak adanya isolasi resource antar modul yang beban kerjanya jauh berbeda.
+
+**Dampak ke FoodGo:** Lonjakan load di modul notifikasi kurir (misalnya) bisa menghabiskan resource server yang juga dipakai oleh modul pesanan dan pembayaran, meskipun dua modul itu tidak bermasalah. Akibatnya seluruh sistem down secara bersamaan, tidak hanya salah satu fitur.
+
+**Solusi desain awal:** Memisahkan modul menjadi beberapa service, yaitu dipisahkan menjadi Order Service, Payment Service dan Notification Service, kemudian menjalankan masing-masing service pada instance (server)yang berbeda. Gunakan load balancer untuk mendistribusikan trafik dan menyediakan redundancy sehingga kegagalan satu instance tidak langsung menghentikan seluruh sistem.
+
+**Trade-off:** Memisahkan sistem menjadi beberapa service menambah kompleksitas operasional dan biaya. Komunikasi yang sebelumnya berupa pemanggilan fungsi di dalam satu proses kini menjadi request melalui jaringan antar service, sehingga rentan terhadap masalah jaringan (berkaitan dengan pitfall network reliability dan timeout). Selain itu, dibutuhkan biaya tambahan untuk menjalankan beberapa instance server beserta load balancer, serta usaha tambahan untuk monitoring dan deployment tiap service secara terpisah. Bagi tim kecil seperti FoodGo, kompleksitas ini perlu diimbangi dengan manfaat skalabilitas yang diperoleh, bukan langsung memecah sistem menjadi banyak service kecil sekaligus.
 
 ---
 
