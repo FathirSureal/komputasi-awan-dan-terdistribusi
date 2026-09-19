@@ -4,7 +4,7 @@
 
 | Nama | NIM | Kontribusi |
 |---|---|---|
-| Fathir Al Farih | 103072400002 | Network is always reliable & Masalah desain sistem - Arsitektur Monolitik |
+| Fathir Al Farih | 103072400002 | Network is always reliable & Kesimpulan |
 | Muhammad Kelvin Firmansyah | 103072400096 | Latency is Zero & Masalah desain sistem - Arsitektur Monolitik |
 
 ## Pitfall 1: Latency is Zero — ditulis oleh Muhammad Kelvin Firmansyah
@@ -44,7 +44,7 @@ Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagal
   - **Sisi negatif:** data yang ditampilkan bisa kedaluwarsa (stale) atau tidak konsisten dengan kondisi sebenarnya, dan fitur yang tersedia terbatas. Fallback juga menambah kompleksitas dan biaya (infrastruktur cadangan dan jalur kode tambahan). Jalur fallback yang jarang dipakai dan jarang diuji bisa ikut gagal saat dibutuhkan, dan kegagalan komponen utama bisa tersamarkan jika tidak ada monitoring yang memadai.
 
 --- 
-## Pitfall 3: Single point of failure - Desain arsitektur monolitik — ditulis oleh Muhammad Kelvin Firmansyah & Fathir Al Farih 
+## Pitfall 3: Single point of failure - Desain arsitektur monolitik — ditulis oleh Muhammad Kelvin Firmansyah 
 
 **Bukti di skenario:** "satu server yang menangani semua modul (pesanan, pembayaran, notifikasi kurir) kewalahan karena semuanya berjalan di satu proses monolitik yang sama...".
 
