@@ -61,3 +61,9 @@ Implikasi praktikal dari asumsi ini adalah minimnya mekanisme penanganan kegagal
 ## Kesimpulan Kelompok
 
 [Ringkasan: jika FoodGo memperbaiki ketiga pitfall ini, apa arsitektur yang disarankan secara garis besar? Kaitkan dengan Tugas 2.]
+
+Kesimpulan dari analisis skenario Tugas 1 adalah, sistem didesain tanpa konsiderasi kondisi asli lapangan yang tidak ideal, seperti latency yang tidak pernah 0 dan jaringan yang tidak selalu andal. Hal ini menyebabkan desain mengalami pitfall dan kurangnya fitur untuk menjaga kestabilan sistem FoodGo. Sehingga solusi dari kami adalah memberikan beberapa fitur yang memastikan sistem tetap andal meski digunakan pada kondisi yang tidak ideal, contohnya, menambahkan set timeout dan circuit breaker untuk mengatasi pitfall "latency is zero", serta penambahan fitur retry dan fallback untuk pitfall "network is always reliable".
+
+Tak hanya itu, kami menyimpulkan desain arsitektur sistem kurang cocok untuk tipe aplikasi FoodGo. Sistem berbentuk monolith yang menggabungkan semua modul fungsi menjadi satu sistem yang saling berhubungan, menyebabkan bila ada satu saja kesalahan sistem, maka permasalahan tersebut akan menjalar ke modul fungsi yang lain meski secara logika tidak terhubung secara langsung.
+
+Oleh karena itu berdasarkan penemuan kami, Akar masalah FoodGo adalah arsitektur monolit yang menjadi SPOF (Single point of failure), Solusinya sistem FoodGo menggunakan arsitektur yang merupakan kombinasi SOA (dipecah per kapabilitas bisnis) dan Publish-Subscribe (komunikasi asinkron via broker), dengan Layered sebagai struktur internal tiap service dan pola resiliensi (timeout, retry, circuit breaker) pada pemanggilan sinkron. Sementara tipe arsitektur sistem peer-to-Peer tidak cocok karena FoodGo membutuhkan kontrol dan konsistensi terpusat.
