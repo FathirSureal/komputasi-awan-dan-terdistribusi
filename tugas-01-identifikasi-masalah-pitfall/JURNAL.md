@@ -9,7 +9,7 @@
 
 ## 19 September 2026 12:10 - [Online meet via Discord]
 - Peserta: Fathir Al Farih & Muhammad Kelvin Firmansyah
-- Poin diskusi: Second meet serta analisis skenario dan soal Tugas 1 : Push pengerjaan tugas yang sudah dikerjakan ke repository github dan revisi analisis yang dirasa kurang tepat
+- Poin diskusi: Second meet serta analisis skenario dan soal Tugas 1 : Push pengerjaan tugas yang sudah dikerjakan ke repository github dan revisi analisis pitfall nomor #3 yang dirasa kurang tepat
 - Perbedaan pendapat (jika ada): -
 
 ## Review Silang
