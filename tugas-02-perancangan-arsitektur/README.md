@@ -24,25 +24,43 @@ Melanjutkan Tugas 1: FoodGo butuh sistem yang **decoupled** agar tim kurir dan t
 
 ```mermaid
 graph TD
-    Client[Aplikasi Pelanggan]
+    subgraph ClientArea[Client]
+        Client[Aplikasi Pelanggan]
+    end
 
-    Client -->|1\. HTTP POST pesan - sinkron| Gateway[API Gateway]
-    Gateway -->|2\. RPC cek stok - sinkron| CatalogSvc[Service Katalog Resto]
+    subgraph BackendArea[Backend]
+        Gateway[API Gateway]
+        CatalogSvc[Service Katalog Resto]
+        OrderSvc[Service Pesanan]
+        PaymentSvc[Service Pembayaran]
+        Broker[(Message Broker)]
+    end
+
+    subgraph RestoArea[Restoran]
+        RestoNotifSvc[Service Notifikasi Resto]
+        AppResto[Aplikasi Mitra Resto]
+    end
+
+    subgraph CourierArea[Kurir]
+        CourierSvc[Service Kurir]
+        AppCourier[Aplikasi Kurir]
+    end
+
+    Client -->|1\. HTTP POST pesan - sinkron| Gateway
+    Gateway -->|2\. RPC cek stok - sinkron| CatalogSvc
     CatalogSvc -->|2a\. stok tersedia| Gateway
-    Gateway -->|3\. RPC buat order - sinkron| OrderSvc[Service Pesanan]
+    Gateway -->|3\. RPC buat order - sinkron| OrderSvc
 
-    OrderSvc -->|"4\. RPC charge - sinkron
-    timeout & circuit breaker"| PaymentSvc[Service Pembayaran]
+    OrderSvc -->|"4\. RPC charge - sinkron<br/>timeout & circuit breaker"| PaymentSvc
     PaymentSvc -->|5\. status bayar| OrderSvc
 
-    OrderSvc -->|"6\. publish OrderPaid - asinkron
-    dengan retry"| Broker[(Message Broker)]
+    OrderSvc -->|"6\. publish OrderPaid - asinkron<br/>dengan retry"| Broker
 
-    Broker -.->|7a\. subscribe| RestoNotifSvc[Service Notifikasi Resto]
-    RestoNotifSvc -->|8\. notif order baru| AppResto[Aplikasi Mitra Resto]
+    Broker -.->|7a\. subscribe| RestoNotifSvc
+    RestoNotifSvc -->|8\. notif order baru| AppResto
 
-    Broker -.->|7b\. subscribe| CourierSvc[Service Kurir]
-    CourierSvc -->|9\. tugaskan kurir| AppCourier[Aplikasi Kurir]
+    Broker -.->|7b\. subscribe| CourierSvc
+    CourierSvc -->|9\. tugaskan kurir| AppCourier
     CourierSvc -->|10\. publish CourierAssigned - asinkron| Broker
     Broker -.->|11\. subscribe| OrderSvc
 
