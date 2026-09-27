@@ -58,7 +58,14 @@ graph TD
 
    Dengan demikian, alur end-to-end ini menggabungkan komunikasi sinkron pada proses inti (pemesanan dan pembayaran) dengan komunikasi asinkron berbasis event pada proses notifikasi (pemberitahuan resto dan penugasan kurir).
 
-5. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
+4. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
+
+   Jawab:
+
+   Arsitektur yang dipilih mengurangi *coupling* dengan memisahkan fungsi FoodGo ke dalam beberapa service berdasarkan kapabilitas bisnis. Setiap service memiliki tanggung jawab dan proses deployment sendiri sehingga perubahan pada satu service tidak harus memengaruhi service lainnya. Komunikasi antar-service juga tidak seluruhnya dilakukan secara langsung. Proses yang membutuhkan respons langsung menggunakan komunikasi sinkron, sedangkan event seperti pesanan dibuat dan pembayaran berhasil dikirim melalui Publish-Subscribe dan message broker. Dengan demikian, service Kurir/Notifikasi tidak perlu bergantung langsung pada Order Service atau Payment Service untuk menerima informasi.
+
+   Namun, pemisahan tersebut juga memiliki beberapa *trade-off*. Jumlah komponen yang lebih banyak membuat sistem lebih kompleks untuk dikelola dibandingkan monolitik. Penggunaan Publish-Subscribe juga membuat alur komunikasi tidak selalu linear sehingga proses debugging dan pelacakan error menjadi lebih sulit. Selain itu, message broker menjadi komponen tambahan yang perlu dikelola dan dapat menjadi titik kegagalan jika tidak dirancang dengan mekanisme redundansi. Komunikasi sinkron juga tetap memiliki risiko *latency* dan kegagalan jaringan sehingga diperlukan timeout, retry, dan circuit breaker. Oleh karena itu, kombinasi SOA dan Publish-Subscribe dapat mengurangi coupling dan risiko perubahan antar-modul, tetapi membutuhkan pengelolaan infrastruktur serta monitoring yang lebih kompleks.
+
 
 ## Cara Membuat Diagram (Gratis, Cukup Laptop)
 
