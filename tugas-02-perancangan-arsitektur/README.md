@@ -8,7 +8,16 @@ Melanjutkan Tugas 1: FoodGo butuh sistem yang **decoupled** agar tim kurir dan t
 
 ## Tugas Kelompok
 
-1. Pilih **satu** gaya arsitektur utama: **Service-Oriented Architecture (SOA)** atau **Publish-Subscribe**. Boleh dikombinasikan (mis. SOA untuk service inti + Pub-Sub untuk notifikasi), tapi harus dijustifikasi kenapa kombinasi ini yang dipilih.
+1. **Pilih satu gaya arsitektur utama:** Service-Oriented Architecture (SOA) atau Publish-Subscribe. Boleh dikombinasikan (mis. SOA untuk service inti + Pub-Sub untuk notifikasi), tapi harus dijustifikasi kenapa kombinasi ini yang dipilih.
+
+   Jawab :
+   
+   Berdasarkan hasil analisis Tugas 1, masalah utama FoodGo terletak pada arsitektur monolitik yang menjadi *Single Point of Failure* (SPOF). Seluruh modul berjalan dalam satu aplikasi, sehingga perubahan, deployment, atau gangguan pada satu modul dapat berdampak pada modul lainnya dan berisiko menyebabkan downtime pada keseluruhan sistem.
+
+   Untuk mengatasi masalah tersebut, kami memilih **Service-Oriented Architecture (SOA)** sebagai arsitektur utama dengan **Publish-Subscribe** sebagai pola komunikasi pendukung. SOA digunakan untuk memisahkan sistem berdasarkan kapabilitas bisnis (Order Service, Payment Service, Restaurant Service, Courier/Notification Service) sehingga tiap service dapat dikembangkan dan di-deploy secara independen. Publish-Subscribe digunakan untuk komunikasi asinkron melalui message broker, terutama untuk event yang tidak membutuhkan respons langsung (mis. pesanan dibuat, pembayaran berhasil), sementara komunikasi yang membutuhkan respons langsung tetap sinkron dengan timeout, retry, dan circuit breaker sebagai mekanisme resiliensi sesuai temuan Tugas 1 mengenai *latency is zero* dan *network is always reliable*.
+
+   Dengan kombinasi tersebut, ketergantungan antar-service dapat dikurangi, kegagalan tidak mudah menyebar ke seluruh sistem, dan proses deployment dapat dilakukan secara lebih terisolasi.
+
 2. Gambarkan minimal 4 komponen berikut dan interaksinya: modul Pesanan, modul Pembayaran, modul Kurir/Notifikasi, modul Katalog Resto (dan message broker/API gateway jika relevan).
 3. Jelaskan alur satu skenario penuh secara end-to-end di diagram (misalnya: pelanggan buat pesanan → bayar → resto terima notifikasi → kurir ditugaskan) — tunjukkan komponen mana berkomunikasi dengan siapa, dan **jenis komunikasinya** (sinkron/asinkron, request-response/event).
 4. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
