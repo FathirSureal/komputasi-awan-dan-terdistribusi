@@ -19,6 +19,9 @@ Melanjutkan Tugas 1: FoodGo butuh sistem yang **decoupled** agar tim kurir dan t
    Dengan kombinasi tersebut, ketergantungan antar-service dapat dikurangi, kegagalan tidak mudah menyebar ke seluruh sistem, dan proses deployment dapat dilakukan secara lebih terisolasi.
 
 2. Gambarkan minimal 4 komponen berikut dan interaksinya: modul Pesanan, modul Pembayaran, modul Kurir/Notifikasi, modul Katalog Resto (dan message broker/API gateway jika relevan).
+
+   Jawab:
+
 ```mermaid
 graph TD
     Client[Aplikasi Pelanggan]
@@ -46,7 +49,16 @@ graph TD
     OrderSvc -->|12\. update status pesanan| Client
 ```
 3. Jelaskan alur satu skenario penuh secara end-to-end di diagram (misalnya: pelanggan buat pesanan → bayar → resto terima notifikasi → kurir ditugaskan) — tunjukkan komponen mana berkomunikasi dengan siapa, dan **jenis komunikasinya** (sinkron/asinkron, request-response/event).
-4. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
+
+   Jawab:
+
+   Skenario dimulai ketika pelanggan mengirimkan permintaan pesanan ke API Gateway, yang secara sinkron meneruskannya ke Service Katalog Resto untuk pengecekan stok dan ke Service Pesanan untuk membuat order. Service Pesanan kemudian memanggil Service Pembayaran secara sinkron (request-response) untuk memproses pembayaran, dilengkapi timeout dan circuit breaker agar tidak menunggu tanpa batas waktu apabila terjadi perlambatan.
+
+Setelah pembayaran berhasil, Service Pesanan menerbitkan event OrderPaid ke Message Broker secara asinkron, dengan mekanisme retry apabila pengiriman sempat gagal. Broker kemudian mendistribusikan event tersebut kepada Service Notifikasi Resto dan Service Kurir secara independen melalui pola publish-subscribe, sehingga keduanya dapat memproses notifikasi tanpa saling bergantung. Setelah kurir ditugaskan, Service Kurir menerbitkan event CourierAssigned kembali ke broker, yang kemudian diterima oleh Service Pesanan untuk memperbarui status pesanan dan mengirimkannya kembali kepada pelanggan.
+
+Dengan demikian, alur end-to-end ini menggabungkan komunikasi sinkron pada proses inti (pemesanan dan pembayaran) dengan komunikasi asinkron berbasis event pada proses notifikasi (pemberitahuan resto dan penugasan kurir).
+
+5. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
 
 ## Cara Membuat Diagram (Gratis, Cukup Laptop)
 
