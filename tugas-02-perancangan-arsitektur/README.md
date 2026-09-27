@@ -19,6 +19,32 @@ Melanjutkan Tugas 1: FoodGo butuh sistem yang **decoupled** agar tim kurir dan t
    Dengan kombinasi tersebut, ketergantungan antar-service dapat dikurangi, kegagalan tidak mudah menyebar ke seluruh sistem, dan proses deployment dapat dilakukan secara lebih terisolasi.
 
 2. Gambarkan minimal 4 komponen berikut dan interaksinya: modul Pesanan, modul Pembayaran, modul Kurir/Notifikasi, modul Katalog Resto (dan message broker/API gateway jika relevan).
+```mermaid
+graph TD
+    Client[Aplikasi Pelanggan]
+
+    Client -->|1\. HTTP POST pesan - sinkron| Gateway[API Gateway]
+    Gateway -->|2\. RPC cek stok - sinkron| CatalogSvc[Service Katalog Resto]
+    CatalogSvc -->|2a\. stok tersedia| Gateway
+    Gateway -->|3\. RPC buat order - sinkron| OrderSvc[Service Pesanan]
+
+    OrderSvc -->|"4\. RPC charge - sinkron
+    timeout & circuit breaker"| PaymentSvc[Service Pembayaran]
+    PaymentSvc -->|5\. status bayar| OrderSvc
+
+    OrderSvc -->|"6\. publish OrderPaid - asinkron
+    dengan retry"| Broker[(Message Broker)]
+
+    Broker -.->|7a\. subscribe| RestoNotifSvc[Service Notifikasi Resto]
+    RestoNotifSvc -->|8\. notif order baru| AppResto[Aplikasi Mitra Resto]
+
+    Broker -.->|7b\. subscribe| CourierSvc[Service Kurir]
+    CourierSvc -->|9\. tugaskan kurir| AppCourier[Aplikasi Kurir]
+    CourierSvc -->|10\. publish CourierAssigned - asinkron| Broker
+    Broker -.->|11\. subscribe| OrderSvc
+
+    OrderSvc -->|12\. update status pesanan| Client
+```
 3. Jelaskan alur satu skenario penuh secara end-to-end di diagram (misalnya: pelanggan buat pesanan → bayar → resto terima notifikasi → kurir ditugaskan) — tunjukkan komponen mana berkomunikasi dengan siapa, dan **jenis komunikasinya** (sinkron/asinkron, request-response/event).
 4. Analisis tertulis: kenapa gaya ini mengatasi masalah *coupling* dari Tugas 1, dan apa trade-off-nya (mis. Pub-Sub menambah kompleksitas debugging karena alur tidak linear).
 
