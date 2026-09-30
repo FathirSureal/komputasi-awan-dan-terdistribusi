@@ -5,7 +5,7 @@
   - Versi polos (`processed_count += 1`): selalu 100 di setiap percobaan (5 kali run: 100, 100, 100, 100, 100).
   - Versi tiga langkah (baca, jeda, tulis): di bawah 100 dan berbeda tiap run (6 kali run: 20, 19, 20, 21, 17, 20).
 - Kenapa bisa meleset (jelaskan mekanisme race condition dengan kata sendiri):
-  - Mekanisme: `processed_count += 1` sebenarnya tiga langkah: baca nilai, tambah 1, tulis balik. Kalau dua thread membaca nilai yang sama sebelum salah satunya menulis, satu update hilang. Misalnya counter bernilai 5, thread A dan B sama-sama membaca 5, lalu keduanya menulis 6, jadi dua pesanan diproses tapi counter cuma naik satu.
+  - Mekanisme: `processed_count += 1` sebenarnya tiga langkah baca nilai, tambah 1, tulis balik. Kalau dua thread membaca nilai yang sama sebelum salah satunya menulis, satu update hilang. Misalnya counter bernilai 5, thread A dan B sama-sama membaca 5, lalu keduanya menulis 6, jadi dua pesanan diproses tetapi counter cuma naik satu.
   - Versi polos: hasilnya tetap 100 karena operasinya sangat singkat dan thread jarang berpindah tepat di tengahnya, jadi race condition tidak terlihat. Ini bukan berarti kodenya aman, karena `+= 1` tetap bukan operasi atomik.
   - Versi tiga langkah: kami menulis increment secara eksplisit menjadi `temp = processed_count`, `time.sleep(random.uniform(0.0001, 0.01))`, lalu `processed_count = temp + 1`. Selama sebuah thread tidur di jeda itu, thread lain sempat membaca nilai yang belum diperbarui, sehingga sebagian update tertimpa dan total akhir kurang dari 100. Jeda ini hanya untuk memperlebar peluang race condition, bukan untuk membuat program terlihat konkuren.
 
