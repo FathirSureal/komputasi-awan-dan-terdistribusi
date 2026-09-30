@@ -13,7 +13,7 @@
 - Hasil `processed_count` setelah perbaikan: selalu 100 di setiap percobaan (5 kali run: 100, 100, 100, 100, 100). Increment dibungkus `with lock:` sehingga hanya satu thread yang mengubah counter sekali waktu, jadi tidak ada update yang hilang. Jeda yang sama tetap dipakai di dalam lock, jadi Lock terbukti melindungi kasus terburuk.
   
 ## Kendala Docker
-- Error yang ditemui saat `docker build`/`docker run` dan cara memperbaikinya: Tidak terdapat kendala selama proses `docker build`/`docker run`.
+- Error yang ditemui saat `docker build`/`docker run` dan cara memperbaikinya: Tidak terdapat kendala selama proses `docker build`/`docker run`. tetapi mengalami kendala ketika instalasi berupa error virtualization, solusi nya adalah dengan menginstal wsl dan melakukan reboot device.
 
 ## Log Penggunaan AI (Level 2)
 
