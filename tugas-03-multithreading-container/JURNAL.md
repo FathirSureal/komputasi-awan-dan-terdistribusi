@@ -7,11 +7,11 @@
 - Kenapa bisa meleset (jelaskan mekanisme race condition dengan kata sendiri):
   - Mekanisme: `processed_count += 1` sebenarnya tiga langkah: baca nilai, tambah 1, tulis balik. Kalau dua thread membaca nilai yang sama sebelum salah satunya menulis, satu update hilang. Misalnya counter bernilai 5, thread A dan B sama-sama membaca 5, lalu keduanya menulis 6, jadi dua pesanan diproses tapi counter cuma naik satu.
   - Versi polos: hasilnya tetap 100 karena operasinya sangat singkat dan thread jarang berpindah tepat di tengahnya, jadi race condition tidak terlihat. Ini bukan berarti kodenya aman, karena `+= 1` tetap bukan operasi atomik.
-  - Versi tiga langkah: kami menulis increment secara eksplisit menjadi `temp = processed_count`, `time.sleep(0.0001)`, lalu `processed_count = temp + 1`. Selama sebuah thread tidur di jeda itu, thread lain sempat membaca nilai yang belum diperbarui, sehingga sebagian update tertimpa dan total akhir kurang dari 100. Jeda ini hanya untuk memperlebar peluang race condition, bukan untuk membuat program terlihat konkuren.
+  - Versi tiga langkah: kami menulis increment secara eksplisit menjadi `temp = processed_count`, `time.sleep(random.uniform(0.0001, 0.01))`, lalu `processed_count = temp + 1`. Selama sebuah thread tidur di jeda itu, thread lain sempat membaca nilai yang belum diperbarui, sehingga sebagian update tertimpa dan total akhir kurang dari 100. Jeda ini hanya untuk memperlebar peluang race condition, bukan untuk membuat program terlihat konkuren.
 
 ## Percobaan dengan Lock
-- Hasil `processed_count` setelah perbaikan: Selalu 100 di setiap percobaan (5 kali run: 100, 100, 100, 100, 100). Increment dibungkus `with lock:` sehingga hanya satu thread yang mengubah counter sekali waktu, jadi tidak ada update yang hilang.
-
+- Hasil `processed_count` setelah perbaikan: selalu 100 di setiap percobaan (5 kali run: 100, 100, 100, 100, 100). Increment dibungkus `with lock:` sehingga hanya satu thread yang mengubah counter sekali waktu, jadi tidak ada update yang hilang. Jeda yang sama tetap dipakai di dalam lock, jadi Lock terbukti melindungi kasus terburuk.
+  
 ## Kendala Docker
 - Error yang ditemui saat `docker build`/`docker run` dan cara memperbaikinya: Tidak terdapat kendala selama proses `docker build`/`docker run`.
 
