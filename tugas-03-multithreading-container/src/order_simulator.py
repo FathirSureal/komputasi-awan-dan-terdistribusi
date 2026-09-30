@@ -9,7 +9,7 @@ import threading
 import random
 import time
 
-NUM_ORDERS = 100      # jumlah pesanan simulasi yang masuk
+NUM_ORDERS = 100     # jumlah pesanan simulasi yang masuk
 NUM_WORKERS = 10        # jumlah thread pekerja
 
 # Counter bersama untuk menghitung total pesanan yang berhasil diproses.
@@ -17,7 +17,7 @@ NUM_WORKERS = 10        # jumlah thread pekerja
 processed_count = 0
 
 # Toggle on/off lock untuk pembungkusan increment
-USE_LOCK = True
+USE_LOCK = False
 
 # TODO 1: Buat objek Lock di sini untuk melindungi `processed_count`.
 # lock = threading.Lock()
@@ -28,7 +28,6 @@ def process_order(order_id: int) -> None:
     global processed_count
     # Simulasikan kerja nyata (mis. validasi, hitung total harga)
     time.sleep(random.uniform(0.0001, 0.01))
-
     # TODO 2: Tambahkan increment `processed_count` DI SINI.
     # Langkah 1: jalankan dulu tanpa lock (increment biasa: processed_count += 1)
     #            dan buktikan hasil akhirnya sering salah (< NUM_ORDERS).
@@ -38,11 +37,11 @@ def process_order(order_id: int) -> None:
     if USE_LOCK:
         with lock:
             temp = processed_count
-            time.sleep(0)
+            time.sleep(random.uniform(0.0001, 0.01))
             processed_count = temp + 1
     else:
         temp = processed_count
-        time.sleep(0)
+        time.sleep(random.uniform(0.0001, 0.01))
         processed_count = temp + 1
 
 
