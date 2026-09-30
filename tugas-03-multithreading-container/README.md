@@ -16,8 +16,7 @@ Server FoodGo boros sumber daya karena setiap permintaan pesanan masuk diproses 
 3. Paketkan program ke dalam **Docker container** (`Dockerfile` disediakan skeleton-nya, lengkapi bagian yang kosong).
 4. Jalankan container di laptop, buktikan program tetap berjalan benar di dalam container (screenshot/video di `bukti/`).
 
-Hasil Analisis : 
-## Analisis: race condition, perbaikan, kenapa threading (bukan multiprocessing/proses OS)
+## Hasil Analisis: race condition, perbaikan, kenapa threading (bukan multiprocessing/proses OS)
 
 **Race condition dan perbaikannya**
 - `processed_count` dipakai bersama oleh 10 thread, padahal increment-nya tiga langkah: baca, tambah 1, tulis balik.
