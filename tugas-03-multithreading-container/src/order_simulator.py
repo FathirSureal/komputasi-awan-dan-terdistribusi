@@ -17,7 +17,7 @@ NUM_WORKERS = 10        # jumlah thread pekerja
 processed_count = 0
 
 # Toggle on/off lock untuk pembungkusan increment
-USE_LOCK = False
+USE_LOCK = True
 
 # TODO 1: Buat objek Lock di sini untuk melindungi `processed_count`.
 # lock = threading.Lock()
