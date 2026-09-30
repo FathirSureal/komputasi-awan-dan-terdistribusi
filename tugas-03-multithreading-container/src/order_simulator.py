@@ -37,10 +37,14 @@ def process_order(order_id: int) -> None:
     if USE_LOCK:
         with lock:
             temp = processed_count
+            # Memberi jeda antara proses membaca dan menulis processed_count
+            # agar thread lain berkesempatan mengakses nilai yang sama
             time.sleep(random.uniform(0.0001, 0.01))
             processed_count = temp + 1
     else:
         temp = processed_count
+        # Memberi jeda antara proses membaca dan menulis processed_count
+         # agar thread lain berkesempatan mengakses nilai yang sama
         time.sleep(random.uniform(0.0001, 0.01))
         processed_count = temp + 1
 
@@ -59,6 +63,7 @@ def main() -> None:
     # start semua thread, lalu join semua thread sebelum lanjut.
     threads = []
     # ... isi logika pembagian tugas & pembuatan thread di sini ...
+    # menggunakan multi thread dan tidak multi process
     for i in range(NUM_WORKERS):
         bagian = order_ids[i::NUM_WORKERS]
         t = threading.Thread(target=worker, args=(bagian,))
