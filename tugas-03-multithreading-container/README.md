@@ -16,6 +16,22 @@ Server FoodGo boros sumber daya karena setiap permintaan pesanan masuk diproses 
 3. Paketkan program ke dalam **Docker container** (`Dockerfile` disediakan skeleton-nya, lengkapi bagian yang kosong).
 4. Jalankan container di laptop, buktikan program tetap berjalan benar di dalam container (screenshot/video di `bukti/`).
 
+Hasil Analisis : 
+## Analisis: race condition, perbaikan, kenapa threading (bukan multiprocessing/proses OS)
+
+**Race condition dan perbaikannya**
+- `processed_count` dipakai bersama oleh 10 thread, padahal increment-nya tiga langkah: baca, tambah 1, tulis balik.
+- Kalau dua thread membaca nilai yang sama sebelum salah satunya menulis, satu update hilang. Akibatnya hasil akhir kurang dari 100 dan berubah tiap run (20, 19, 20, 21, 17, 20).
+- Versi polos `+= 1` selalu 100 hanya karena jeda antara baca dan tulisnya sangat sempit. Kodenya tetap tidak aman.
+- Perbaikannya: increment dibungkus `with lock:` agar hanya satu thread yang boleh mengubah counter pada satu waktu. Hasilnya selalu 100, meskipun jeda yang memicu kesalahan tetap dipakai.
+- Konsekuensinya, bagian yang dikunci berjalan berurutan sehingga program lebih lambat.
+
+**Kenapa threading, bukan multiprocessing (proses OS)**
+- Thread berbagi memori dalam satu proses, jadi semua pekerja mengakses `processed_count` yang sama. Ini sesuai tujuan tugas: mempelajari state bersama dan cara melindunginya.
+- Pada multiprocessing, tiap proses punya salinan memori sendiri sehingga counter tidak otomatis tergabung, dan `threading.Lock` tidak berlaku lintas proses.
+- Pekerjaan di sini didominasi menunggu (`time.sleep` sebagai simulasi I/O), jadi keterbatasan GIL tidak menjadi masalah. Thread juga lebih ringan dibuat daripada proses.
+- Kalau pekerjaannya berat di CPU, multiprocessing baru lebih tepat.
+
 ## Skeleton yang Disediakan
 
 - `src/order_simulator.py` — kerangka program dengan `# TODO` di bagian logika inti (worker function, penggunaan lock, agregasi hasil). **Kalian wajib mengisi bagian TODO sendiri** — ini bagian penilaian utama.
