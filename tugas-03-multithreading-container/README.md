@@ -16,14 +16,15 @@ Server FoodGo boros sumber daya karena setiap permintaan pesanan masuk diproses 
 3. Paketkan program ke dalam **Docker container** (`Dockerfile` disediakan skeleton-nya, lengkapi bagian yang kosong).
 4. Jalankan container di laptop, buktikan program tetap berjalan benar di dalam container (screenshot/video di `bukti/`).
 
-## Hasil Analisis: race condition, perbaikan, kenapa threading (bukan multiprocessing/proses OS)
+## Analisis kelompok : race condition, perbaikan, kenapa threading (bukan multiprocessing/proses OS)
 
 **Race condition dan perbaikannya**
-- `processed_count` dipakai bersama oleh 10 thread, padahal increment-nya tiga langkah: baca, tambah 1, tulis balik.
-- Kalau dua thread membaca nilai yang sama sebelum salah satunya menulis, satu update hilang. Akibatnya hasil akhir kurang dari 100 dan berubah tiap run (20, 19, 20, 21, 17, 20).
-- Versi polos `+= 1` selalu 100 hanya karena jeda antara baca dan tulisnya sangat sempit. Kodenya tetap tidak aman.
+- `processed_count` dipakai 10 thread bersamaan, padahal increment-nya tiga langkah, yaitu baca, tambah 1, tulis balik.
+- Jika dua thread reading nilai yang sama sebelum salah satunya write, satu update akan hilang. Sehingga hasil akhir kurang dari 100 dan berubah tiap run (20, 19, 20, 21, 17, 20) atau dapat disenut terjadi race condition.
+- Versi polos `+= 1` meskipun selalu mendapat 100, tetap sebenarnya tidak aman dari race condition, hanya saja jeda antara baca dan tulisnya sangat sempit sehingga mampu memberi ilusi keamanan.
+- Kami menambahkan sleep atau jeda dalam proses antara read dan write agar memaksa kondisi race condition muncul.
 - Perbaikannya: increment dibungkus `with lock:` agar hanya satu thread yang boleh mengubah counter pada satu waktu. Hasilnya selalu 100, meskipun jeda yang memicu kesalahan tetap dipakai.
-- Konsekuensinya, bagian yang dikunci berjalan berurutan sehingga program lebih lambat.
+- Namun sisi negaitfnya, bagian yang dikunci berjalan berurutan sehingga program lebih lambat.
 
 **Kenapa threading, bukan multiprocessing (proses OS)**
 - Thread berbagi memori dalam satu proses, jadi semua pekerja mengakses `processed_count` yang sama. Ini sesuai tujuan tugas: mempelajari state bersama dan cara melindunginya.
