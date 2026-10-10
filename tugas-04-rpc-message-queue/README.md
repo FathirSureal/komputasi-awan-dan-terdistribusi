@@ -48,6 +48,26 @@ Dashboard manajemen RabbitMQ (untuk lihat antrean secara visual) otomatis aktif 
 3. Untuk Jalur B, matikan dulu `consumer.py`, jalankan `publisher.py` beberapa kali, lalu nyalakan `consumer.py` — buktikan pesan **tetap diproses** (tidak hilang) karena antrean menyimpannya. Ini adalah inti pembelajaran *asynchronous decoupling*.
 4. Tulis analisis: kenapa jalur ini (RPC atau MQ) cocok untuk skenario yang kalian pilih, dan apa yang terjadi jika dipakai untuk skenario yang salah (mis. RPC dipakai untuk notifikasi kurir → modul pembayaran ikut lambat kalau kurir down).
 
+## Jalur yang dipilih
+- [Jalur B: Message Queue], alasan: Notifikasi "pembayaran berhasil" ke modul Kurir tidak boleh membuat modul Pembayaran menunggu. Publisher cukup mengirim event ke antrean `pembayaran_berhasil` di RabbitMQ lalu langsung lanjut, sedangkan consumer (Kurir) mengambilnya saat sudah siap.
+
+## Analisis
+
+### Kenapa Message Queue cocok
+Modul Pembayaran (`publisher.py`) mengirim event `pembayaran_berhasil` ke modul Kurir (`consumer.py`) lewat RabbitMQ. Alasan Message Queue cocok untuk skenario ini:
+
+- **Pembayaran tetap responsif.** Publisher hanya menaruh pesan di antrean dengan `basic_publish` tanpa menunggu balasan, sehingga Kurir yang sibuk atau mati tidak menghambat Pembayaran.
+- **Pesan tidak hilang.** Antrean dideklarasikan `durable=True` dan pesan dikirim dengan `delivery_mode=2` (persistent), jadi pesan tetap tersimpan di broker sampai consumer siap, bahkan jika RabbitMQ restart.
+- **Pesan dihapus setelah selesai diproses.** Consumer memanggil `basic_ack` setelah pesan berhasil diproses, sehingga pesan yang belum selesai tidak hilang dari antrean.
+- **Decoupling.** Publisher dan consumer tidak perlu aktif bersamaan. Pesan yang dikirim saat consumer mati tetap diterima ketika consumer dijalankan kembali.
+- **Mudah dikembangkan.** Consumer dapat ditambah saat beban naik tanpa mengubah kode publisher.
+
+### Jika dipakai untuk skenario yang salah
+- **Message Queue untuk operasi yang butuh jawaban seketika** (mis. `cek_saldo`, `proses_pembayaran`): karena asinkron, modul Pesanan tidak langsung tahu saldo cukup atau pembayaran berhasil, dan harus menunggu balasan lewat antrean lain sehingga alurnya lebih rumit. RPC lebih tepat untuk kasus ini.
+- **RPC untuk notifikasi ke Kurir:** modul Pembayaran harus menunggu balasan Kurir. Jika Kurir lambat, Pembayaran ikut lambat. Jika Kurir mati, panggilan gagal dan kegagalan itu merambat ke Pembayaran, serta notifikasi yang dikirim saat itu hilang karena tidak ada penyangga.
+
+**Kesimpulan:** Message Queue untuk operasi yang boleh tertunda dan tidak boleh memblokir pengirim (notifikasi ke Kurir), RPC untuk operasi yang hasilnya dibutuhkan seketika (cek saldo, pembayaran).
+
 ## Struktur Submission
 
 ```
