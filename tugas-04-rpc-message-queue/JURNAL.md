@@ -7,12 +7,11 @@
   - [Jalur B: ]:
 
 ## Kendala teknis
-- Error saat setup (mis. koneksi RabbitMQ ditolak, port bentrok): ...
+- Error saat setup (mis. koneksi RabbitMQ ditolak, port bentrok): - (tidak ada kendala)
 
 ## Uji "pesan tidak hilang" (khusus Jalur B)
 - Langkah uji: matikan consumer → jalankan publisher → nyalakan consumer
-- Hasil yang diamati: ...
-
+- Hasil yang diamati: Consumer (modul Kurir) dimatikan terlebih dahulu, kemudian publisher (modul Pembayaran) dijalankan untuk mengirim event `pembayaran_berhasil`. Hasilnya, publisher tetap dapat mengirim pesan tanpa error dan tanpa harus menunggu respons dari consumer. Hal ini menunjukkan bahwa modul Pembayaran tetap responsif meskipun modul Kurir sedang tidak aktif. Pesan yang dikirim juga tidak hilang karena disimpan sementara oleh broker RabbitMQ di dalam antrean, yang dapat dilihat melalui kolom Ready pada dashboard. Ketika consumer kembali dijalankan, seluruh pesan yang tertunda diterima dan diproses hingga jumlah pesan dalam antrean kembali menjadi 0. Hasil pengujian ini menunjukkan bahwa komunikasi berjalan secara asinkron dan decoupled, sehingga publisher dan consumer tidak harus aktif secara bersamaan. Dengan demikian, komunikasi antar modul pada FoodGo menjadi lebih andal karena gangguan pada satu modul tidak langsung menghambat proses pada modul lainnya.
 ## Log Penggunaan AI (Level 2)
 
 > Wajib diisi sesuai kebijakan Level 2 di [`../RUBRIK-UMUM.md`](../RUBRIK-UMUM.md). Tulis "Tidak memakai AI" pada baris pertama jika memang tidak dipakai. Hanya untuk brainstorming ide/outline — bukan untuk kode/analisis/teks akhir.
