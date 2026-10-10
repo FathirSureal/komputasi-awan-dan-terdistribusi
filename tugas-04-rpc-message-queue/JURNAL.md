@@ -4,7 +4,7 @@
 - [keduanya], alasan:
   - [Jalur A: RPC]: Operasi cek saldo dan proses pembayaran antara modul Pesanan dan modul Pembayaran hasilnya dibutuhkan seketika. Modul Pesanan harus tahu saldo cukup atau tidak, dan pembayaran berhasil atau gagal, sebelum bisa melanjutkan pesanan. Karena itu pola sinkron (request-response) pada RPC paling cocok. RPC juga membuat pemanggilan fungsi di modul lain terasa seperti fungsi lokal (`proxy.cek_saldo("user1")`) dan hasilnya langsung bisa dipakai.
 
-  - [Jalur B: ]:
+  - [Jalur B: ]: Karena menjawab kebutuhan inti studi kasus FoodGo, yaitu modul Pembayaran harus tetap responsif walaupun modul Kurir sedang sibuk atau down. Pada Jalur A (RPC), komunikasi bersifat sinkron sehingga pemanggil harus menunggu balasan, dan jika server tujuan mati, pemanggil ikut gagal atau tertahan. Pada Jalur B, publisher cukup mengirim event pembayaran_berhasil ke broker tanpa menunggu balasan, sementara pesan disimpan di antrean sampai consumer siap memprosesnya, sehingga tidak ada pesan yang hilang dan kedua modul tidak saling bergantung (decoupling). Pendekatan ini juga lebih mudah dikembangkan (scalable), karena consumer dapat ditambah ketika beban meningkat tanpa mengubah kode publisher. Selain itu, perilakunya mudah dibuktikan secara visual melalui pengujian mematikan consumer, menjalankan publisher, lalu menyalakan consumer kembali, dengan dashboard RabbitMQ sebagai bukti tambahan berupa jumlah pesan pada kolom Ready. Karena notifikasi ke kurir memang termasuk operasi yang tidak boleh membuat sistem menunggu
 
 ## Kendala teknis
 - Error saat setup (mis. koneksi RabbitMQ ditolak, port bentrok): - (tidak ada kendala)
