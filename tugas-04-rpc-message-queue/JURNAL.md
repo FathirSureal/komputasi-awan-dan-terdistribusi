@@ -18,4 +18,4 @@
 
 | Tanggal | Tool AI | Prompt yang diberikan | Ringkasan saran/ide AI | Bagaimana diolah jadi tulisan/kode sendiri |
 |---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+| 10 Oktober 2026 | ChatGPT (GPT) | Bagaimana langkah-langkah membuat Dockerfile dan menjalankan container untuk script Python? | Langkah Docker: (1) pastikan Docker Desktop (WSL2) berjalan; (2) buat `Dockerfile` berisi base image Python, `WORKDIR`, `COPY` file proyek, instal dependensi dari `requirements.txt`, dan `CMD` untuk menjalankan script; (3) build image dengan `docker build -t <nama-image> .`; (4) jalankan container dengan `docker run --rm <nama-image>`; (5) cek hasil di terminal dan simpan sebagai bukti. | Penjelasan AI hanya dipakai untuk memahami alur. Isi bagian `# TODO` pada `Dockerfile` ditulis sendiri oleh kelompok sesuai struktur proyek (`src/order_simulator.py`, `requirements.txt`), lalu di-build dan dijalankan di laptop sendiri sampai container berjalan. Screenshot hasilnya disimpan di folder `bukti/`. |
