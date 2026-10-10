@@ -2,9 +2,9 @@
 
 ## Jalur yang dipilih
 - [keduanya], alasan:
-- [Jalur A: RPC]: Operasi cek saldo dan proses pembayaran antara modul Pesanan dan modul Pembayaran hasilnya dibutuhkan seketika. Modul Pesanan harus tahu saldo cukup atau tidak, dan pembayaran berhasil atau gagal, sebelum bisa melanjutkan pesanan. Karena itu pola sinkron (request-response) pada RPC paling cocok. RPC juga membuat pemanggilan fungsi di modul lain terasa seperti fungsi lokal (`proxy.cek_saldo("user1")`) dan hasilnya langsung bisa dipakai.
+  - [Jalur A: RPC]: Operasi cek saldo dan proses pembayaran antara modul Pesanan dan modul Pembayaran hasilnya dibutuhkan seketika. Modul Pesanan harus tahu saldo cukup atau tidak, dan pembayaran berhasil atau gagal, sebelum bisa melanjutkan pesanan. Karena itu pola sinkron (request-response) pada RPC paling cocok. RPC juga membuat pemanggilan fungsi di modul lain terasa seperti fungsi lokal (`proxy.cek_saldo("user1")`) dan hasilnya langsung bisa dipakai.
 
-- [Jalur B: ]:
+  - [Jalur B: ]:
 
 ## Kendala teknis
 - Error saat setup (mis. koneksi RabbitMQ ditolak, port bentrok): ...
