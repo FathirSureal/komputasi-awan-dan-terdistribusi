@@ -17,4 +17,4 @@
 
 | Tanggal | Tool AI | Prompt yang diberikan | Ringkasan saran/ide AI | Bagaimana diolah jadi tulisan/kode sendiri |
 |---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+| 18 Oktober 2026 | Claude | Bagaimanakah aku run 5 promt tersebut (python3 src/node.py --id 1 --port 5001 --peers 5002,5003,5004,5005, python3 src/node.py --id 2 --port 5002 --peers 5001,5003,5004,5005, python3 src/node.py --id 3 --port 5003 --peers 5001,5002,5004,5005, python3 src/node.py --id 4 --port 5004 --peers 5001,5002,5003,5005, python3 src/node.py --id 5 --port 5005 --peers 5001,5002,5003,5004) secara bersamaan. | Ai memberikan script perintah untuk menjalankan 5 node secara bersamaan melalui powershell terminal | Kami menggunakan perintah tersebut untuk menjalankan test agar dapat menunjukan proses berjalan konsisten hampir bersamaan. |
