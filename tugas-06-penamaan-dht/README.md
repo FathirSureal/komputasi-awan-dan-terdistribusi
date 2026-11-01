@@ -62,7 +62,7 @@ Chord memakai consistent hashing, yaitu dimana ID kurir dan ID node di-hash ke r
 | Cocok untuk IP yang sering berubah | Update terpusat, rawan bottleneck | Terganjal TTL dan cache | Cocok, ID tetap dan lokasi simpan ditentukan hash |
 | Jenis nama | Datar | Hierarkis | Datar |
 
-## Diagram 
+## Analisis 2: Diagram 
 ### Diagram 1: Ring sebelum node-medan-1 bergabung
 
 ```mermaid
@@ -134,6 +134,43 @@ flowchart LR
     classDef node fill:#dbeafe,stroke:#1d4ed8,color:#000
     classDef kurir fill:#fef3c7,stroke:#b45309,color:#000
 ```
+
+## Analisis 3: Apa yang Terjadi pada Mapping Saat Node Keluar dari Ring
+
+Pada simulasi, node yang keluar adalah `node-jakarta-2` (id=102). Sebelum keluar, node ini bertanggung jawab atas `kurir-001` (hash=50), karena node dengan id terkecil yang lebih besar atau sama dengan 50 adalah node 102. Dua kurir lain tidak berada di bawah tanggung jawabnya:
+
+- `kurir-002` (hash=28) disimpan di `node-bandung-1` (id=40)
+- `kurir-003` (hash=132) disimpan di `node-surabaya-1` (id=136)
+
+### Cara kerja `leave()`
+
+1. Program mencatat dulu key apa saja yang dipegang node tersebut, selagi node masih ada di ring.
+2. Node dihapus dari `self.nodes`.
+3. Untuk setiap key yang tadinya dipegang node itu, program mencari successor baru dengan `find_successor()`. Karena node 102 sudah tidak ada, node dengan id terkecil yang lebih besar atau sama dengan 50 adalah `node-medan-1` (id=123), yaitu node berikutnya searah jarum jam setelah node 102. Tanggung jawab atas `kurir-001` pun diambil alih oleh `node-medan-1`.
+
+### Bukti dari output program
+
+```text
+[LEAVE] Node 'node-jakarta-2' (id=102) keluar dari ring
+      key 'kurir-001' (hash=50, ip=192.168.1.10) berpindah dari node id=102 ke successor baru id=123
+[LOOKUP] 'kurir-001' (hash=50) -> node penanggung jawab id=123 (10.0.0.5)
+kurir-001 -> 192.168.1.10
+[LOOKUP] 'kurir-002' (hash=28) -> node penanggung jawab id=40 (10.0.0.3)
+kurir-002 -> 192.168.1.11
+```
+
+### Kesimpulan
+
+- **Siapa yang mengambil alih:** successor dari node yang keluar, yaitu `node-medan-1` (id=123).
+- **Lookup tetap berhasil:** `kurir-001` tetap mengembalikan IP yang sama (`192.168.1.10`). Yang berubah hanya node penanggung jawabnya, dari node id=102 menjadi node id=123.
+- **Node lain tidak terpengaruh:** `kurir-002` tetap di node 40 dan `kurir-003` tetap di node 136. Perubahan topologi hanya berdampak pada key milik node yang keluar, bukan seluruh ring.
+
+Ini dikarenakan penggunaan consistent hashing. Pada hashing biasa (misalnya hash dibagi jumlah node), perubahan jumlah node bisa memaksa hampir semua key dihitung ulang dan dipindahkan. Pada Chord hanya sebagian kecil key yang berpindah, sehingga sistem tetap bisa menjawab pencarian IP kurir tanpa gangguan berarti.
+
+### Perbandingan dengan node yang bergabung
+
+Ketika `node-medan-1` bergabung sebelumnya, tidak ada key yang berpindah. Hash `kurir-003` (132) lebih besar dari id node baru (123), sehingga masih menjadi tanggung jawab node 136. Node yang bergabung hanya mengambil key yang hash-nya jatuh di antara node sebelumnya dan dirinya sendiri.
+
     
 ## Struktur Submission
 
