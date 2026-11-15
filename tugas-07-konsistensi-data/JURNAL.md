@@ -20,6 +20,8 @@
 
 > Wajib diisi sesuai kebijakan Level 2 di [`../RUBRIK-UMUM.md`](../RUBRIK-UMUM.md). Tulis "Tidak memakai AI" pada baris pertama jika memang tidak dipakai. Hanya untuk brainstorming ide/outline — bukan untuk kode/analisis/teks akhir.
 
+## Log Penggunaan AI
+
 | Tanggal | Tool AI | Prompt yang diberikan | Ringkasan saran/ide AI | Bagaimana diolah jadi tulisan/kode sendiri |
 |---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+| 15 Nov 2026 | GPT | Minta bantuan analisis Bagian 1: Sequential vs Eventual Consistency, Client-Centric, dan sequence diagram, dengan screenshot output simulasi | Eventual saja tidak cukup untuk saldo e-wallet, Sequential terlalu mahal, jadi dipilih Read-Your-Writes karena masalahnya pelanggan tidak melihat top-up sendiri. AI juga memberi draf 2 sequence diagram Mermaid | Saya baca dan pahami alasannya, lalu cocokkan dengan output simulasi saya (Bandung baca 0.0 di skenario naif, 70000.0 di skenario RYW). Draf saya tulis ulang dengan kalimat sendiri ke `README.md` dan diagramnya saya sesuaikan dengan alur kode 
